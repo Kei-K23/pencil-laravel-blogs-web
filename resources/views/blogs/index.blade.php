@@ -1,11 +1,26 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="text-xl font-semibold leading-tight text-gray-800">
-            {{ __('Blogs') }}
-        </h2>
-    </x-slot>
 
-    <div>
-        You are inside blogs
+    @unless ($blogs->isEmpty())
+
+    <div class="py-12">
+        @foreach ($blogs as $blog)
+        <div class="mx-auto my-5 max-w-7xl sm:px-6 lg:px-8">
+            <x-blog-card-wrapper>
+                <x-blog-card :blog="$blog" />
+            </x-blog-card-wrapper>
+        </div>
+        @endforeach
     </div>
+    @else
+
+    <div class="py-12">
+        <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <x-blog-card-wrapper>
+                {{ __('No blogs yet!')}}
+            </x-blog-card-wrapper>
+        </div>
+    </div>
+    @endunless
+
+    {{ $blogs->links() }}
 </x-app-layout>

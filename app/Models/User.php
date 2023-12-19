@@ -12,7 +12,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasUuids;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -44,4 +44,25 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+
+    public function blogs()
+    {
+        return $this->hasMany(Blog::class, 'author_id', 'id');
+    }
+
+    // create slug from title
+    static function createSlug(string $title): string
+    {
+        // Convert the title to lowercase
+        $slug = strtolower($title);
+
+        // Replace spaces with dashes
+        $slug = str_replace(' ', '-', $slug);
+
+        // Remove special characters
+        $slug = preg_replace('/[^A-Za-z0-9\-]/', '', $slug);
+
+        return $slug;
+    }
 }

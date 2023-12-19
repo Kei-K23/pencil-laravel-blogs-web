@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -14,14 +15,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// blogs routes
+Route::group([], function () {
+    Route::get('/', [BlogController::class, 'index'])->name('blogs');
+    Route::get('/{blog}', [BlogController::class, 'show'])->where('blog', '[0-9]+');
+});
 
-Route::get('/', function () {
-    return view('blogs.index');
-})->name('blogs');
-
-Route::get('/dashboard', function () {
-    return view('dashboard.index');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// dashboard route for auth user
+Route::get('/dashboard', [BlogController::class, 'showLoginUserBlogs'])->middleware(['auth', 'verified'])->name('dashboard');
 
 // profile routes
 Route::middleware('auth')->group(function () {
