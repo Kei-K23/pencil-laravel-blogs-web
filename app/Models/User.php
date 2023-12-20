@@ -4,7 +4,6 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -49,5 +48,15 @@ class User extends Authenticatable
     public function blogs()
     {
         return $this->hasMany(Blog::class, 'author_id', 'id');
+    }
+
+    public function likedBlogs()
+    {
+        return $this->belongsToMany(Blog::class);
+    }
+
+    public function commands()
+    {
+        return $this->hasMany(Command::class);
     }
 }

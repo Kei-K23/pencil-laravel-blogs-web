@@ -17,11 +17,30 @@ class Blog extends Model
         'author_id',
         'view_count',
         'likes_count',
+        'tags'
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class, 'author_id', 'id');
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class);
+    }
+
+    public function commands()
+    {
+        return $this->hasMany(Command::class);
+    }
+
+    public function scopeFilter($query, array $filters)
+    {
+        if ($filters['search'] ?? false) {
+            $query->where('title', 'like', '%' . $filters['search'] . '%')
+                ->orWhere('tags', 'like', '%' . $filters['search'] . '%');
+        }
     }
 
     // create slug from title

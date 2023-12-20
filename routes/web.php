@@ -25,6 +25,7 @@ Route::group([], function () {
     Route::delete('/{blog}/delete', [BlogController::class, 'destroy'])->name('blogs.destroy')->middleware(['auth', 'verified']);
     Route::post('/store', [BlogController::class, 'store'])->name('blogs.store')->middleware(['auth', 'verified']);
     Route::get('/{blog}', [BlogController::class, 'show'])->where('blog', '[0-9]+');
+    Route::get('/{blog}/like', [BlogController::class, 'like'])->name('blogs.like')->middleware(['auth', 'verified']);
 });
 
 // dashboard route for auth user

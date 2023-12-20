@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Blog;
+use App\Models\BlogUser;
+use App\Models\Command;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use ReturnTypeWillChange;
@@ -10,9 +12,9 @@ use ReturnTypeWillChange;
 class BlogController extends Controller
 {
     // show all blogs
-    public function index(): View
+    public function index(Request $req): View
     {
-        $blogs = Blog::latest()->paginate(10);
+        $blogs = Blog::latest()->filter($req->query())->paginate(10);
 
         return view('blogs.index', ['blogs' => $blogs]);
     }
@@ -20,9 +22,9 @@ class BlogController extends Controller
     // show single blog
     public function show(Blog $blog): View
     {
-
         $blog->increment('view_count');
-        return view('blogs.show', ['blog' => $blog]);
+        $commands = Command::where('blog_id', $blog->id)->get();
+        return view('blogs.show', ['blog' => $blog, 'commands' => $commands]);
     }
 
     // show create blog page
@@ -42,7 +44,18 @@ class BlogController extends Controller
         ]);
 
         $formFiles['author_id'] = auth()->user()->id;
-        $formFiles['tags'] = $blog['tags'];
+        // Retrieve the tags string from the request and convert it into an array
+        $tagsArray = explode(',', $req->input('tags'));
+
+        // Trim and remove any extra spaces in each tag
+        $tagsArray = array_map('trim', $tagsArray);
+
+        // Remove empty tags
+        $tagsArray = array_filter($tagsArray);
+
+        // Assign the processed tags array to the form data
+        $formFiles['tags'] = implode(',', $tagsArray);
+
 
         Blog::create($formFiles);
 
@@ -58,11 +71,29 @@ class BlogController extends Controller
     // update blog
     public function update(Request $req, Blog $blog)
     {
+
         $formFiles =  $req->validate([
             'title' => ['string', 'min:3'],
             'content' => ['string'],
             'tags' => ['string']
         ]);
+
+
+        $formFiles['author_id'] = auth()->user()->id;
+        // Retrieve the tags string from the request and convert it into an array
+        $tagsArray = explode(',', $req->input('tags'));
+
+        // Trim and remove any extra spaces in each tag
+        $tagsArray = array_map('trim', $tagsArray);
+
+        // Remove empty tags
+        $tagsArray = array_filter($tagsArray);
+
+
+        // Assign the processed tags array to the form data
+        $formFiles['tags'] = implode(',', $tagsArray);
+
+
         $blog->update($formFiles);
 
         return back()->with('message', 'Successfully edited');
@@ -79,5 +110,23 @@ class BlogController extends Controller
     {
         $blogs = Blog::where('author_id', auth()->user()->id)->get();
         return view('dashboard.index', ['blogs' => $blogs]);
+    }
+
+    public function like(Blog $blog)
+    {
+
+        $user = auth()->user();
+        // already liked the blog
+        if ($user->likedBlogs()->where('blog_id', $blog->id)->exists()) {
+            $user->likedBlogs()->detach($blog->id);
+            $blog->decrement('likes_count');
+            return back()->with('message', 'Successfully unlike this blog.');
+        }
+
+        $user->likedBlogs()->attach($blog->id);        // $user = auth()->user();
+
+        $blog->increment('likes_count');
+
+        return back()->with('message', 'Successfully liked this blog.');
     }
 }
