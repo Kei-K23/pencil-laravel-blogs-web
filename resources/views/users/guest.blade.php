@@ -1,7 +1,3 @@
-@php
-$user = auth()->user();
-@endphp
-
 <x-app-layout>
 
     <div class="flex flex-col md:flex-row items-start justify-between">

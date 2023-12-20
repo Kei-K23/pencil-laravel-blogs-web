@@ -18,7 +18,6 @@ class BlogFactory extends Factory
     {
         return [
             'title' => fake()->sentence(),
-            'slug' => fake()->url(),
             'author_id' => \App\Models\User::factory(),
             'content' => fake()->paragraph(10),
             'view_count' => fake()->numberBetween(2, 50),

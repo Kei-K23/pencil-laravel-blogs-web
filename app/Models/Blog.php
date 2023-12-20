@@ -23,4 +23,19 @@ class Blog extends Model
     {
         return $this->belongsTo(User::class, 'author_id', 'id');
     }
+
+    // create slug from title
+    static function createSlug(string $title): string
+    {
+        // Convert the title to lowercase
+        $slug = strtolower($title);
+
+        // Replace spaces with dashes
+        $slug = str_replace(' ', '-', $slug);
+
+        // Remove special characters
+        $slug = preg_replace('/[^A-Za-z0-9\-]/', '', $slug);
+
+        return $slug;
+    }
 }
