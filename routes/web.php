@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\CommandController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -27,6 +28,20 @@ Route::group([], function () {
     Route::get('/{blog}', [BlogController::class, 'show'])->where('blog', '[0-9]+');
     Route::get('/{blog}/like', [BlogController::class, 'like'])->name('blogs.like')->middleware(['auth', 'verified']);
 });
+
+// command routes
+Route::group([], function () {
+    Route::post('/commands', [CommandController::class, 'store'])->name('commands.store')->middleware([
+        'auth', 'verified'
+    ]);
+    Route::put('/commands/{command}', [CommandController::class, 'update'])->name('commands.update')->middleware([
+        'auth', 'verified'
+    ]);
+    Route::delete('/commands/{command}', [CommandController::class, 'destroy'])->name('commands.destroy')->middleware([
+        'auth', 'verified'
+    ]);
+});
+
 
 // dashboard route for auth user
 Route::get('/dashboard', [BlogController::class, 'showLoginUserBlogs'])->middleware(['auth', 'verified'])->name('dashboard');
