@@ -10,12 +10,16 @@ $date = calcTime($command->created_at);
         <a href="{{ url('/users/'.$command->user->name)}}" class="transition-all hover:text-sky-600 font-bold">{{
             $command->user->name }}</a>
         <h3>{{ $date }}</h3>
+        @can('edit-command', $command)
         <button @click="editing = true" class="ml-3 text-blue-500">Edit</button>
+        @endcan
+        @can('destroy-command', $command)
         <form action="{{ route('commands.destroy', ['command' => $command]) }}" method="post">
             @csrf
             @method('DELETE')
             <button type="submit" class="text-red-500">Delete</button>
         </form>
+        @endcan
     </div>
 
     <template x-if="editing">

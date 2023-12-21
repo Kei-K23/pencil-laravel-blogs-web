@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class CommandController extends Controller
 {
@@ -29,15 +30,21 @@ class CommandController extends Controller
             'content' => ['string', 'min:3'],
         ]);
 
-        $command->update($formFields);
-
-        return back()->with('message', 'Successfully update the command.');
+        if (Gate::allows('edit-command', $command)) {
+            $command->update($formFields);
+            return back()->with('message', 'Successfully update the command.');
+        } else {
+            return back()->with('message', 'Unauthorized!');
+        }
     }
 
     public function destroy(Command $command): RedirectResponse
     {
-        $command->delete();
-
-        return back()->with('message', 'Successfully delete the command.');
+        if (Gate::allows('destroy-command', $command)) {
+            $command->delete();
+            return back()->with('message', 'Successfully delete the command.');
+        } else {
+            return back()->with('message', 'Unauthorized!');
+        }
     }
 }

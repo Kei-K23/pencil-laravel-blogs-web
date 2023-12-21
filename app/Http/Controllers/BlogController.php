@@ -6,6 +6,7 @@ use App\Models\Blog;
 use App\Models\BlogUser;
 use App\Models\Command;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use ReturnTypeWillChange;
 
@@ -44,16 +45,9 @@ class BlogController extends Controller
         ]);
 
         $formFiles['author_id'] = auth()->user()->id;
-        // Retrieve the tags string from the request and convert it into an array
         $tagsArray = explode(',', $req->input('tags'));
-
-        // Trim and remove any extra spaces in each tag
         $tagsArray = array_map('trim', $tagsArray);
-
-        // Remove empty tags
         $tagsArray = array_filter($tagsArray);
-
-        // Assign the processed tags array to the form data
         $formFiles['tags'] = implode(',', $tagsArray);
 
 
@@ -93,17 +87,22 @@ class BlogController extends Controller
         // Assign the processed tags array to the form data
         $formFiles['tags'] = implode(',', $tagsArray);
 
-
-        $blog->update($formFiles);
-
-        return back()->with('message', 'Successfully edited');
+        if (Gate::allows('edit-blog', $blog)) {
+            $blog->update($formFiles);
+            return back()->with('message', 'Successfully edited');
+        } else {
+            return back()->with('message', 'Unauthorized!');
+        }
     }
 
     public function destroy(Blog $blog)
     {
-        $blog->delete();
-
-        return redirect('/')->with('message', 'Successfully delete the blog');
+        if (Gate::allows('destroy-blog', $blog)) {
+            $blog->delete();
+            return redirect('/')->with('message', 'Successfully delete the blog');
+        } else {
+            return back()->with('message', 'Unauthorized!');
+        }
     }
 
     public function showLoginUserBlogs(): View
